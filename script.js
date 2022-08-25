@@ -1,46 +1,56 @@
-const choices = ["rock", "paper", "scissors"];
-const wins = { rock: "scissors", paper: "rock", scissors: "paper" };
+const choices = document.querySelectorAll(".choice");
+const score = document.getElementById("score");
+const notification = document.getElementById("notification");
+const compChoices = ["rock", "paper", "scissors"];
+const winCriteria = { rock: "scissors", paper: "rock", scissors: "paper" };
+const WIN_SCORE = 5;
 let computerSelection;
 let playerSelection;
 let computerScore = 0;
 let playerScore = 0;
 
-let getComputerChoice = () => choices[~~(Math.random() * choices.length)];
+//Event listeners
+choices.forEach((choice) => choice.addEventListener("click", playRound));
 
-function playRound(playerSelection, computerSelection) {
-  computerSelection = computerSelection.toLowerCase();
-  playerSelection = playerSelection.toLowerCase();
-  if (computerSelection === playerSelection) {
-    return "It's a Tie";
-  } else if (computerSelection === wins[playerSelection]) {
-    playerScore++;
-    return "Player Wins";
-  } else {
-    computerScore++;
-    return "Computer Wins";
-  }
-}
+const getComputerChoice = () => compChoices[~~(Math.random() * choices.length)];
 
-function declareWinner(playerScore, computerScore) {
-  if (playerScore === computerScore) {
-    return "It's a Draw!";
-  } else if (playerScore > computerScore) {
-    return "You Won!";
-  } else {
-    return "You Lost!";
-  }
-}
-
-function game(numRounds) {
-  for (let i = 1; i <= numRounds; i++) {
-    playerSelection = prompt("Enter your choice: ");
+function playRound(e) {
+  if (playerScore < WIN_SCORE && computerScore < WIN_SCORE) {
+    playerSelection = e.target.id;
     computerSelection = getComputerChoice();
-    console.log(`Player chooses ${playerSelection}`);
-    console.log(`Computer chooses ${computerSelection}`);
-    playRound(playerSelection, computerSelection);
-    console.log(`Computer: ${computerScore} Player: ${playerScore}`);
+    if (computerSelection === playerSelection) {
+      notification.textContent = `Computer chose ${computerSelection} - It's a tie`;
+    } else if (computerSelection === winCriteria[playerSelection]) {
+      playerScore++;
+      drawScoreboard();
+      checkPlayerWin();
+    } else {
+      computerScore++;
+      drawScoreboard();
+      checkComputerWin();
+    }
   }
-  console.log(declareWinner(playerScore, computerScore));
 }
 
-game(5);
+function checkPlayerWin() {
+  if (playerScore === WIN_SCORE) {
+    notification.textContent = `You made it to ${WIN_SCORE}pts, you win!`;
+  } else {
+    notification.textContent = `Computer chose ${computerSelection} - Player Wins`;
+  }
+}
+
+function checkComputerWin() {
+  if (computerScore === WIN_SCORE) {
+    notification.textContent = `Computer made it to ${WIN_SCORE}pts, you lose!`;
+  } else {
+    notification.textContent = `Computer chose ${computerSelection} - Computer Wins`;
+  }
+}
+
+function drawScoreboard() {
+  score.innerHTML = `
+  <p>Player: ${playerScore}</p>
+  <p>Computer: ${computerScore}</p>
+  `;
+}
